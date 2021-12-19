@@ -1,7 +1,4 @@
-Hello and welcome to this blog. Edit the `index.md` file to change this content. All pages on the blog, including this one, use [Markdown](https://guides.github.com/features/mastering-markdown/). You can include images:
+# 点点Xin智，每天积累一点点
+## 大脑容量是有限的，而且无法分享，因此应该把心得、知识、感悟落在文字上，与众人分享
 
-![Image of fast.ai logo](images/logo.png)
-
-## This is a title
-
-And you can include links, like this [link to fast.ai](https://www.fast.ai). Posts will appear after this file. 
+[第一篇](./_posts/2020-01-14-welcome.md)
