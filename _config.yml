@@ -6,16 +6,16 @@
 # https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
 # https://learnxinyminutes.com/docs/yaml/
 
-title: Edit _config.yml to set your title!
-description: This is where the description of your site will go. You should change it by editing the _config.yml file. It can be as long as you like! Happy blogging... ❤
-github_username: jph00
+title: 点点Xin智，每天积累一点点
+description: 大脑容量是有限的，而且无法分享，因此应该把心得、知识、感悟落在文字上，与众人分享
+github_username: Alex-Cheng
 
 # Email and twitter are optional:
-email:
+email: alexcheng2020@qq.com
 twitter_username:
 
 # Set this to true to get LaTeX math equation support
-use_math:
+use_math: true
 
 # Add your Google Analytics ID here if you have one and want to use it
 google_analytics:
