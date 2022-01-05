@@ -152,7 +152,7 @@ PartitionID\_{**所有MinBlockNum中的最小**}\_{**所有MaxBlockNum中的最�
 
 Level是自增的，每次合并增一。
 
-
+在每次mutations之后，都会产生一个新的part，其level值是最高的，而原先的part会在后台渐渐被消除掉。
 
 
 
