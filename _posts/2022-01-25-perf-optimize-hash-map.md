@@ -6,8 +6,6 @@
 
 有一亿条记录，记录有两列：group_id，attribute，并且记录已经按照group_id排了序。要求计数每个group_id对应的行的attribute值的重复次数，生成一个新的结果列。例如：
 
-
-
 | group_id | attribute | 结果 |
 | ----|------|---- |
 | G001 | A | 1 | 
@@ -25,8 +23,9 @@
 ### 性能测试结果
 
 用release build以非debug模式运行若干次，得到以下结果：
+
 | 实现方式 | 处理一亿条数据效率（运行花费时间） |
-| ---------------|---------------------------------------------------|
+| --------|----------------------|
 | std::unordered_multiset | 15.0s |
 | std::multiset | 21.7s |
 | std::unordered_map | 3.9s |
@@ -38,6 +37,7 @@
 *   红黑树方式(map和multiset所使用的)比Hash方式（unordered_map与unordered_multiset所使用的）要慢。从算法分析上也是如此，但hash table的构建比较耗时。
 
 #### Debug版本和Release版本性能差别极大
+
 | 实现方式 | Release版本一亿条数据处理效率 | Debug版本一亿条数处理效率 |
 | ---------------|--------------------------------------------|---------------------------------------|
 | std::unordered_multiset | 15.0s | 310s |
@@ -140,6 +140,7 @@ void my_hash_map(const std::vector<std::string>& group_ids, const std::vector<st
 ```
 
 ### 性能测试数据
+
 | 实现方式 | Release版本一亿条数据处理效率 |
 | ---------------|--------------------------------------------|
 | std::unordered_multiset | 15.4s |
