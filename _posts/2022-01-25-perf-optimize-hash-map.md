@@ -59,14 +59,18 @@
 
 借鉴CH的Hash map，实现特定场景下效率优化的Hash map，优化的要点在于以下几点：
 1. 提升Hash map的clear操作效率；
-2. 避免分配和释放内存；
-3. 避免容器扩容时的内存拷贝。
+2. 提高内存访问的局部性，提升cache命中率；
+3. 避免分配和释放内存；
+4. 避免容器扩容时的内存拷贝。
 
 ### 提升clear() 操作
 
 通过引入version概念实现O(1)的清空容器操作。一般的Hash map会在clear()方法中会一个个销毁容器内的元素然后再回收内存，参考 [双向链表std::list的clear()](https://prothentic.feishu.cn/docs/doccnAVHsM2RjClGPxrsNvWrlce#SMxsER)
 
 优化的Hash map只要`version+=1`即起到清除容器的效果，因为优化的Hash map的每个元素都有一个version字段，如果version字段值不等于当前version，则认为该元素不存在或已销毁。
+
+### 提高cache命中率
+因为总是使用同一块内存，对内存访问的局部性提升了，这块内存进入到了cache中后，每次对hash map的访问都能够命中到cache。在多核时代中，cache的命中率的提高比单纯CPU的优化效果更好。
 
 ### 避免分配和释放内存
 
