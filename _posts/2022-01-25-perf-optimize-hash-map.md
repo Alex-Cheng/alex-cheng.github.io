@@ -1,4 +1,4 @@
-## C++标准库的某些场景下的效率问题
+## C++ Hash Map在特定场景下的性能优化（超STL的1倍）
 
 在下面的场景中，C++标准库的unordered_map、map、multiset、unordered_multiset效率并不高。
 
