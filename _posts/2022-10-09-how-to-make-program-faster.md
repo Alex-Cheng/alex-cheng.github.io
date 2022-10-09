@@ -23,20 +23,9 @@
 
 
 关于多核并行计算，有阿姆达尔定律（英语：Amdahl's law，Amdahl's argument）
-$$
-\begin{equation} S = \cfrac{W_s + W_p}{W_s+ \cfrac{W_p}{N}} \end{equation}
-$$
 
-- 以及
-- $$
-  \begin{equation} S = \cfrac{1}{(1-W_p)+ \cfrac{W_p}{N}} \end{equation}
-  $$
-- 其中：
-- $$
-  S为最大加速比 \newline W_p为可并行部分 \newline W_s为串行部分，即不可并行部分  \newline N为并行节点 \newline
-  $$
+![image](https://user-images.githubusercontent.com/1518453/194759190-94b44755-109b-4b32-a54c-8cc743e70682.png)
 
-- - 
 
 ## 尽可能利用缓存
 
@@ -62,7 +51,7 @@ $$
 
 在多核CPU中，每个核都有自己的L1、L2缓存，而L3及以下的缓存是多核共享的。
 
-![image-20221009175138502](./_posts/images/image-20221009175138502.png)
+![image-20221009175138502](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/master/_posts/images/image-20221009175138502.png)
 
 由于缓存的存在，CPU与内存的访问由直接访问变成了间接访问。
 
@@ -115,7 +104,7 @@ CPU <-> 缓存 <-> 内存
 
 当前CPU芯片的晶体管规模仍旧遵循摩尔定律，而CPU的单核主频和运算能力已经没有太大发展了（受到物理特性的限制），而CPU核的数量在增长。因此一定要利用好多核。
 
-![img](./_posts/images/how-to-make-program-faster-img1.png)
+![img](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/master/_posts/images/how-to-make-program-faster-img1.png)
 
 ### 减少多线程之间的影响
 
@@ -246,7 +235,7 @@ public:
 
 以下是以上4个方法在128核服务器上的测试结果：
 
-![image2](./_posts/images/how-to-make-program-faster-img2.png)
+![image2](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/master/_posts/images/how-to-make-program-faster-img2.png)
 
 可以看出性能差别很大。
 
