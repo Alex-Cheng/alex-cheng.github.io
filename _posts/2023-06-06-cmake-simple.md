@@ -252,3 +252,7 @@ build/
 `Tutorial.exe` 就是生成的可执行文件，通过该文件运行程序。
 
 `MathFunction`是库的目录。
+
+## 更进一步
+cmake其实是一个语言，可以简单地使用其基本功能，也可以复杂地把它当成一门编程语言。
+(cmake详细介绍)[https://blog.csdn.net/wzj_110/category_10357507.html]
