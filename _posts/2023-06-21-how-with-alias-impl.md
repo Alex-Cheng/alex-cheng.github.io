@@ -322,3 +322,8 @@ SelectWithUnionQuery (children 1)
        Identifier arr
 ```
 
+## 总结
+
+表达式别名比子查询别名在处理上要复杂的多，因为表达式本身的处理就很复杂。
+
+别名机制可以减少SQL查询的大小，但是展开后的AST树的大小不会缩小。虽然如此，却可以在访问者模式的某些Visitor的处理过程中减少Visitor访问的工作量。
