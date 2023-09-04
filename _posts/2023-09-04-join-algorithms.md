@@ -37,7 +37,7 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 不同的JOIN的算法有不一样的时间和空间的执行代价，基本上是要么”时间换空间“，要么”空间换时间“，不会满足“既要-又要-还要”的。并且在不同特性的数据集（例如是否已按照JOIN关键字排过序）上各个JOIN算法的表现（时间和空间执行代价）也不一样。因此根据自身数据的特点、业务需求的特点以及计算和存储资源等限制，选择合适的JOIN算法变得非常有意义。
 
-![algorithms.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/algorithms_199193002c.png)
+![algorithms.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/algorithms_199193002c.png)
 
 根据上图，我们可以知道：（以上图表并不一定精确，受实际环境影响，但是上图勾勒出了大概的样子）
 
@@ -51,7 +51,7 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 ### Hash Join
 
-![hash.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/hash_4131734f7e.png)
+![hash.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/hash_4131734f7e.png)
 
 工作原理：
 
@@ -71,7 +71,7 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 ### Parallel Hash
 
-![parallel_hash.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/parallel_hash_6e944127fa.png)
+![parallel_hash.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/parallel_hash_6e944127fa.png)
 
 工作原理：
 
@@ -93,7 +93,7 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 ### Grace Hash
 
-![grace_hash_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/grace_hash_1_97a605582f.png)
+![grace_hash_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/grace_hash_1_97a605582f.png)
 
 
 
@@ -123,7 +123,7 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 首先需要知道Full sorting merge join与Partial merge join的思路与Hash类JOIN算法是不同的，属于另一类JOIN算法。
 
-**![full_sorting_merge_abstract.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/full_sorting_merge_abstract_d0cda56e1d.png)**
+**![full_sorting_merge_abstract.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/full_sorting_merge_abstract_d0cda56e1d.png)**
 
 Full sorting merge join算法利用了两个有序表之间可以直接匹配的特性（想象一下拉链），不需要构建哈希表。算法描述如下：
 
@@ -143,7 +143,7 @@ Full sorting merge join算法利用了两个有序表之间可以直接匹配的
 
 
 
-![full_sorting_merge_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/full_sorting_merge_1_ff88fa186c.png)
+![full_sorting_merge_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/full_sorting_merge_1_ff88fa186c.png)
 
 
 
@@ -188,7 +188,7 @@ Full sorting merge join算法利用了两个有序表之间可以直接匹配的
 
 Partial merge join算法与Full sorting merge join算法类似，不同的是它不会全局排序左表，只会排序右表并按数据块存储在外存中，并建立min-max索引（该索引记录了每个数据块的最小Join Key和最大Join Key）。扫描左表执行JOIN连接运算。
 
-![partial_merge_abstract.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/partial_merge_abstract_11706c66c7.png)
+![partial_merge_abstract.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/partial_merge_abstract_11706c66c7.png)
 
 工作原理：
 
@@ -199,7 +199,7 @@ Partial merge join算法与Full sorting merge join算法类似，不同的是它
 
 
 
-![partial_merge_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/partial_merge_1_077d65a57c.png)
+![partial_merge_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/partial_merge_1_077d65a57c.png)
 
 缓存在外存中的排好序的右侧表的数据块不应该全部参与某个左侧表数据块的连接运算，而是应该尽量利用Min-max索引过滤掉哪些不需要参与连接运算的右侧表的数据块。如果左表的物理行顺序与连接键排序顺序匹配，则左表中某个数据块的Join Key的最大值和最小值变得很窄，可以过滤掉大部分的右侧表的数据块。但是如果左侧表的数据在Join Key上分布很平均，意味着每个左侧表的数据块的Join Key的最大值和最小值都差不多，这种情况下是过滤不了多少右侧表的数据块的，效率就变得非常低。
 
@@ -220,7 +220,7 @@ Partial merge join算法与Full sorting merge join算法类似，不同的是它
 
 Direct join连接算法是高速版的Hash join连接算法，高速的原因是省去了构建哈希表的这个费时过程。
 
-![direct_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/direct_1_185d6c76d1.png)
+![direct_1.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/direct_1_185d6c76d1.png)
 
 
 
@@ -248,7 +248,7 @@ Direct join连接算法是高速版的Hash join连接算法，高速的原因是
 
 根据应用场景过滤掉不支持的连接类型。如下表所示，Hash join支持的最全，也是最早投入使用的Join算法之一。Direct join支持的最少且对右侧表的表引擎有额外限制。另外一个支持比较多的且性能比较好的是Full sorting merge join。
 
-![choosing_join_3.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/choosing_join_3_06784eadcc.png)
+![choosing_join_3.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/choosing_join_3_06784eadcc.png)
 
 
 
@@ -256,7 +256,7 @@ Direct join连接算法是高速版的Hash join连接算法，高速的原因是
 
 下图展示了所有JOIN算法的时间和空间性能的特点。Direct是最快的，但通用性不强；Parallel在速度上仅次于Direct join，但是内存使用是最高的；Full sorting merge join根据表的排序情况在性能上有很大差别；Grace hash join的性能受buckets数量影响很大；最省内存也是通常最慢的，这就是Partial merge join。
 
-![algorithms.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/algorithms_caf4c65123.png)
+![algorithms.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/algorithms_caf4c65123.png)
 
 
 
@@ -268,13 +268,13 @@ Direct join连接算法是高速版的Hash join连接算法，高速的原因是
 
 #### 1百万 连接  1亿
 
-![imdb_large.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/imdb_large_5b5d3f45ee.png)
+![imdb_large.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/imdb_large_5b5d3f45ee.png)
 
 
 
 #### 1亿 连接 10亿
 
-![imdb_xlarge.png](https://github.com/Alex-Cheng/alex-cheng.github.io/blob/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/imdb_xlarge_f43011336d.png)
+![imdb_xlarge.png](https://github.com/Alex-Cheng/alex-cheng.github.io/raw/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/imdb_xlarge_f43011336d.png)
 
 根据以上性能图谱和实际评测结果，形成以下JOIN算法选择策略。
 
