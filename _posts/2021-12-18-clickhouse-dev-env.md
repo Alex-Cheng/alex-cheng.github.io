@@ -96,7 +96,7 @@ Clickhouse默认是通过静态链接构建出一个完整的release版的运行
 
 因为编译和运行在WSL中，开发在Windows中，要让两边同步。最好的办法就是Windows环境中VS Code所修改的代码就是WSL中编译运行的代码。好在Windows环境中可以直接通过`\\wsl$`去访问WSL中的文件系统，再通过Windows的把网络路径映射成盘符的功能，我们就能够像访问本地磁盘那样访问WSL中的文件系统。
 
-![image.png](./images/10535366-42b00b0bc4527254.png)
+![image.png](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/10535366-42b00b0bc4527254.png)
 
 这样WSL中的/home/alex/depot/ch-pro代码目录就映射成了 Z:\home\alex\depot\ch-pro 代码目录。用VS Code打开 Z:\home\alex\depot\ch-pro目录，修改其代码会直接修改WSL中的代码。
 
@@ -158,12 +158,12 @@ Clickhouse默认是通过静态链接构建出一个完整的release版的运行
 
 远程启动clickhouse并调试，如图所示：
 
-![image.png](./images/10535366-badf022347a28196.png)
+![image.png](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/10535366-badf022347a28196.png)
 
 走到断点成功中断运行却提示找不到源代码文件，需要设置gdb的设置，`set substitute-path <from_path> <to_path> ` 添加地址转换。
 
 正常情况下，就已经可以断点调试了。
 
-![image.png](./images/10535366-d8383ff8136ce38a.png)
+![image.png](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/10535366-d8383ff8136ce38a.png)
 
 修改完代码之后，如果有文件增删，则需要重新运行cmake，如果只是修改文件，则只需要运行ninja。ninja会只编译修改过的文件。
