@@ -50,6 +50,7 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 
 ### Hash Join
+Hash join算法是通过哈希表查表的连接运算算法。
 
 ![hash.png](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/hash_4131734f7e.png)
 
@@ -70,6 +71,7 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 
 ### Parallel Hash
+Parallel hash join算法是在Hash join算法基础上引入了“分桶-多哈希表”的方式增加并行度而形成的连接算法。
 
 ![parallel_hash.png](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/parallel_hash_6e944127fa.png)
 
@@ -92,9 +94,9 @@ ClickHouse目前（2023年3月的版本）有6种JOIN连接算法：
 
 
 ### Grace Hash
+Grace hash join算法是在Hash join算法中加上“分而治之”的策略。
 
 ![grace_hash_1.png](https://raw.githubusercontent.com/Alex-Cheng/alex-cheng.github.io/fbbb2a85c19e1866c0fd70749c5ef6a6b6b74f1b/_posts/images/grace_hash_1_97a605582f.png)
-
 
 
 工作原理：
@@ -179,9 +181,6 @@ Full sorting merge join算法利用了两个有序表之间可以直接匹配的
 关于Join Key是排序键列表的前部分的解释：
 
 > 假设表T的排序键是A、B、C，Join Key A、B就是属于这种情况。
-
-
-
 
 
 ### Partial Merge Join
