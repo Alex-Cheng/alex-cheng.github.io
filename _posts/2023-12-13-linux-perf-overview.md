@@ -383,14 +383,13 @@ bcc的GitHub项目中包含examples和tools，可以作为开发参考和开箱�
 
 ## 参考资料
 
-1. [Exploring USDT Probes on Linux | ZH's Pocket (leezhenghui.github.io)](https://leezhenghui.github.io/linux/2019/03/05/exploring-usdt-on-linux.html)
-
+1. [Exploring USDT Probes on Linux | ZH's Pocket](https://leezhenghui.github.io/linux/2019/03/05/exploring-usdt-on-linux.html)
 2. https://www.processon.com/view/link/62a09494637689075856157e
    密码：linux  
    感谢： Linux简说
+   
+4. [linux kprobe_/sys/kernel/debug/kprobes/blacklist-CSDN博客](https://blog.csdn.net/weixin_41028621/article/details/114239403)
 
-3. [linux kprobe_/sys/kernel/debug/kprobes/blacklist-CSDN博客](https://blog.csdn.net/weixin_41028621/article/details/114239403)
-
-4. [Intel x86_64 PMU简介_小立爱学习的博客-CSDN博客](https://xiaolizai.blog.csdn.net/article/details/124238596?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-124238596-blog-8686130.235^v38^pc_relevant_sort_base1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-124238596-blog-8686130.235^v38^pc_relevant_sort_base1)
+5. [Intel x86_64 PMU简介_小立爱学习的博客-CSDN博客](https://xiaolizai.blog.csdn.net/article/details/124238596?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-124238596-blog-8686130.235^v38^pc_relevant_sort_base1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-124238596-blog-8686130.235^v38^pc_relevant_sort_base1)
 
    
