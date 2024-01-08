@@ -1,4 +1,4 @@
-# JOIN算法选择逻辑以及auto
+# ClickHouse的JOIN算法选择逻辑以及auto选项
 
 ClickHouse中的JOIN的算法有6种：
 1. Direct;
