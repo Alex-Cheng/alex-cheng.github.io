@@ -6,7 +6,7 @@ ClickHouse中的JOIN的算法有6种：
 3. Hash;
 4. Grace hash;
 5. Full sorting merge;
-6. 6. Parallel hash。
+6. Parallel hash。
 
 Setting配置`join_algorithm`用于指定JOIN算法，它可以设置为多个值，例如join_algorithm='direct,hash,partial_merge'。在选择最终JOIN算法的时候是根据setting配置`join_algorithm`, 以及JOIN操作的Strictness、Kind和参与JOIN的右表表引擎类型共同决定。
 Setting配置`join_algorithm`的可选值（可以组合，前面的例子已经展示了）如下所示：
