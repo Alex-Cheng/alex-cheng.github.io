@@ -178,7 +178,7 @@ LEFT ANY JOIN走不同代码分支，该代码分支**忽略**了setting配置ma
 
 ## “auto”的内存问题
 
-根据文档，设置join_algorithm='auto' 以启用自动切换JOIN算法的模式，可以先尝试用hash join算法，然后在内存超过阈值的情况下切换到partial merge join算法。阈值有两个：max_bytes_in_join和max_rows_in_join，指定hash join算法创建的hash table的最大的占用内存字节数和行数。两个阈值只要有一个超过就算是超过阈值。
+根据文档，设置join_algorithm='auto' 以启用自动切换JOIN算法的模式，ClickHouse先尝试用hash join算法，然后在内存超过阈值的情况下切换到partial merge join算法。阈值有两个：max_bytes_in_join和max_rows_in_join，指定hash join算法创建的hash table的最大的占用内存字节数和行数。两个阈值只要有一个超过就算是超过阈值。
 
 但是在实践中发现，原先的尝试的hash join所消耗的内存仍然没有释放，导致在切换到partial merge join后在原本不应该超限的情况下仍然产生内存超限的异常。参考以下示例：
 
