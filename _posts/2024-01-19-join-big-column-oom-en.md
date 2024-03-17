@@ -69,8 +69,8 @@ Before running the test query, set the `max_joined_block_size_rows` threshold.
 
 ```sql
 set join_algorithm = 'hash';
-set max_joined_block_size_rows=10000;  -- 阈值设小，需要内存会变少。
--- 运行测试查询
+set max_joined_block_size_rows=10000;  -- lower threshold，need less memory。
+-- run test query
 ```
 
 The test results are:
@@ -117,11 +117,11 @@ Before running the test query, set the `max_joined_block_size_rows` threshold.
 
 ```sql
 set join_algorithm = 'parital_merge';
-set max_joined_block_size_rows=10000;  -- 阈值设小，需要内存会变少。
--- 第一次运行测试查询
+set max_joined_block_size_rows=10000;  -- lower threshold, need less memory.
+-- run test query first time.
 
-set max_joined_block_size_rows=1000000;  -- 阈值设大，需要内存可能会更多。
--- 第二次运行测试查询
+set max_joined_block_size_rows=1000000;  -- higher threshold, need more memory.
+-- run test query second time.
 ```
 
 The test results are:
@@ -176,7 +176,7 @@ Error message:
 
 LEFT ANY JOIN takes a different branch of code that **overlooked** the setting `max_joined_block_size_rows`, so even if `max_joined_block_size_rows` is reduced, LEFT ANY JOIN still generates a memory overrun exception.
 
-## “auto”的内存问题
+## Memory exeeds when choose join algorithm “auto”
 
 According to the documentation, settting join_algorithm to 'auto ' enables automatic switching of the JOIN algorithm, it tries the "hash join" algorithm first, and then switch to the "partial merge join" algorithm if the memory exceeds the threshold. There are two thresholds, `max_bytes_in_join` and `max_rows_in_join`, which specify the maximum number of bytes of memory occupied by the hash table created by the "hash join" algorithm and the maximum nubmer of rows of the hash table. As long as one of the two thresholds exceeds, it is considered as exceeding the threshold.
 
