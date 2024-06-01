@@ -1,0 +1,11 @@
+## The impact of the `noexcept` keyword on the performance of the `vector` container
+
+When resizing or reallocating a `vector<T>`, such as when adding new elements that exceed its capacity, the existing elements need to be moved to a new storage location. During this process, `vector` prioritizes using move constructors, as moving is usually more efficient than copying. However, there is a key performance and exception safety consideration here, which is the use of the `noexcept` keyword.
+
+In C++, if the move constructor of type `T` is marked as `noexcept`, it means that the move constructor guarantees not to throw exceptions. This is very important for `vector` because:
+
+1. Exception safety guarantee: During the reallocation process, if the move constructor can potentially throw exceptions, `vector` needs to be able to handle this situation to maintain its exception safety guarantee. If the move operation fails, the already moved elements need to be rolled back to their original state to prevent data loss or corruption. If the move constructor does not throw exceptions (i.e., marked with `noexcept`), `vector` can safely perform the move operation without the need for this rollback.
+
+2. Performance optimization: When the move constructor of type `T` is marked as `noexcept`, the standard library implementation (such as `vector`) knows that the move operation is safe, so it can choose a more efficient reallocation strategy. For example, it can decide to use moving instead of copying to transfer elements when expansion is needed, as this is both faster and does not throw exceptions. If the move constructor can throw exceptions, `vector` may fallback to using the copy constructor to ensure exception safety, even if it is less efficient.
+
+Therefore, when the move constructor of type `T` is not marked as `noexcept`, `vector` may avoid calling it to ensure exception safety during reallocation and may choose other (potentially slower) methods to handle the movement or copying of elements. This is also why it is recommended to use the `noexcept` keyword when designing move constructors and move assignment operators, especially when you know that these operations will not throw exceptions. Doing so can improve the performance of your type in standard library containers.
