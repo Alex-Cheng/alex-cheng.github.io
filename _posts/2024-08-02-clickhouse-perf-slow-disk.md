@@ -35,22 +35,26 @@ ORDER BY `id` ASC
 
 #### 关键配置
 1. uncompressed_cache_size
-uncompressed_cache_size 参数是服务器参数，在config.xml中设置，用于指定ClickHouse在内存中用于存储未压缩数据的缓存大小。未压缩数据缓存可以减少对磁盘的访问，从而提高查询性能。
+
+`uncompressed_cache_size` 参数是服务器参数，在config.xml中设置，用于指定ClickHouse在内存中用于存储未压缩数据的缓存大小。未压缩数据缓存可以减少对磁盘的访问，从而提高查询性能。
 - 默认值：默认情况下，这个值可能会根据系统内存大小自动配置，通常为总内存的一部分。
 - 作用：当数据从磁盘读取后，ClickHouse会将未压缩的数据块存储在这个缓存中。如果相同的数据块再次被访问，可以直接从缓存中读取，避免了重复的解压缩操作。
 
 2. use_uncompressed_cache
-use_uncompressed_cache 参数是用户参数，在users.xml中设置，是一个布尔值，用于启用或禁用未压缩数据的缓存。
+
+`use_uncompressed_cache` 参数是用户参数，在users.xml中设置，是一个布尔值，用于启用或禁用未压缩数据的缓存。
 - 默认值：通常为true，表示启用未压缩缓存。
 - 作用：设置为true时，ClickHouse将使用未压缩数据缓存来提升查询性能。设置为false时，ClickHouse将不会使用这个缓存。
 
 3. merge_tree_max_rows_to_use_cache
-merge_tree_max_rows_to_use_cache 参数是用户参数，在users.xml中设置，定义了一个阈值，表示如果一个数据块的行数小于这个值，则该数据块可以被缓存在未压缩数据块缓存中。
+
+`merge_tree_max_rows_to_use_cache` 参数是用户参数，在users.xml中设置，定义了一个阈值，表示如果一个数据块的行数小于这个值，则该数据块可以被缓存在未压缩数据块缓存中。
 - 默认值：根据具体版本和配置情况而定。
 - 作用：这个参数帮助控制哪些数据块可以使用未压缩缓存，从而防止过大的数据块占用缓存空间。
 
 4. merge_tree_max_bytes_to_use_cache
-merge_tree_max_bytes_to_use_cache 参数是用户参数，在users.xml中设置，定义了一个阈值，表示如果一个数据块的大小（以字节为单位）小于这个值，则该数据块可以被缓存在未压缩缓存中。
+
+`merge_tree_max_bytes_to_use_cache` 参数是用户参数，在users.xml中设置，定义了一个阈值，表示如果一个数据块的大小（以字节为单位）小于这个值，则该数据块可以被缓存在未压缩缓存中。
 - 默认值：根据具体版本和配置情况而定。
 - 作用：与merge_tree_max_rows_to_use_cache类似，这个参数帮助控制哪些数据块可以使用未压缩缓存，防止过大的数据块占用缓存空间。
 
