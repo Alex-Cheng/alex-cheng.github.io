@@ -59,13 +59,13 @@ The parameter `allow_multi_statements` is used to control whether to parse multi
 
 ```Cpp
 ASTPtr parseQueryAndMovePosition(
-IParser & parser,
-const char * & pos,
-const char * end,
-const std::string & query_description,
-bool allow_multi_statements,
-size_t max_query_size,
-size_t max_parser_depth)
+    IParser & parser,
+    const char * & pos,
+    const char * end,
+    const std::string & query_description,
+    bool allow_multi_statements,
+    size_t max_query_size,
+    size_t max_parser_depth)
 {...
  ......
  ...
@@ -160,15 +160,15 @@ The following comments reflect the main logic of the code:
 ```Cpp
 void InterpreterSelectQuery::executeImpl(QueryPlan & query_plan, std::optional<Pipe> prepared_pipe)
 {
-/** Streams of data. When the query is executed in parallel, we have several data streams.
-* If there is no GROUP BY, then perform all operations before ORDER BY and LIMIT in parallel, then
-* if there is an ORDER BY, then glue the streams using ResizeProcessor, and then MergeSorting transforms,
-* if not, then glue it using ResizeProcessor,
-* then apply LIMIT.
-* If there is GROUP BY, then we will perform all operations up to GROUP BY, inclusive, in parallel;
-* a parallel GROUP BY will glue streams into one,
-* then perform the remaining operations with one resulting stream.
-*/
+    /** Streams of data. When the query is executed in parallel, we have several data streams.
+    * If there is no GROUP BY, then perform all operations before ORDER BY and LIMIT in parallel, then
+    * if there is an ORDER BY, then glue the streams using ResizeProcessor, and then MergeSorting transforms,
+    * if not, then glue it using ResizeProcessor,
+    * then apply LIMIT.
+    * If there is GROUP BY, then we will perform all operations up to GROUP BY, inclusive, in parallel;
+    * a parallel GROUP BY will glue streams into one,
+    * then perform the remaining operations with one resulting stream.
+    */
 } 
 ```
 
@@ -198,16 +198,16 @@ virtual QueryPipelineBuilderPtr updatePipeline(QueryPipelineBuilders pipelines, 
 
 Use the following data table for the experiment:
 
-SQL
+```SQL
 ┌─statement───────────────────────────┐
 │ CREATE TABLE default.cx1
 (
-`eventId` Int64,
-`caseNumber` String,
-`amount` UInt8
+    `eventId` Int64,
+    `案例号` String,
+    `金额` UInt8
 )
 ENGINE = MergeTree
-ORDER BY (`caseNumber`, eventId)
+ORDER BY (`案例号`, eventId)
 SETTINGS index_granularity = 8192 │
 └────────────────────────────────────┘
 ```
@@ -217,89 +217,90 @@ SETTINGS index_granularity = 8192 │
 ```SQL
 explain pipeline select * from cx1
 ┌─explain───────────────────────┐
-│ (Expression) │ # query step name
-│ ExpressionTransform × 4 │ # 4 ExpressionTransform processors
-│ (SettingQuotaAndLimits) │ # query step name
-│ (ReadFromMergeTree) │
-│ MergeTreeThread × 4 0 → 1 │ # MergeTreeThread has 0 input streams and 1 output stream
+│ (Expression)                  │ # query step 名字
+│ ExpressionTransform × 4       │ # 4个 ExpressionTransform processor
+│   (SettingQuotaAndLimits)     │ # query step 名字
+│     (ReadFromMergeTree)       │
+│     MergeTreeThread × 4 0 → 1 │ # MergeTreeThread的输入流0个，输出流1个
 └───────────────────────────────┘
 ```
 
 **SELECT with filter and LIMIT**
 
 ```SQL
-explain pipeline header=1 select `case number`, eventId from cx1 where eventId % 10 > 3 group by `case number`, eventId limit 100
+explain pipeline header=1 select `案例号`, eventId from cx1 where eventId % 10 > 3 group by `案例号`, eventId limit 100
 ┌─explain─────────────────────────────────────────────────────────────┐
-│ (Expression) │
-│ ExpressionTransform │
-│ Header: Case number String: Case number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ (Limit) │
-│ Limit │
-│ Header: Case number String: Case number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ (Aggregating) │
-│ Resize 4 → 1 # indicates that the input data stream is 4, and 1 is output after merging │
-│ Header: Case number String: Case number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ AggregatingTransform × 4 │
-│ Header: Case number String: Case number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ StrictResize 4 → 4 │
-│ Header × 4 : eventId Int64: eventId Int64 Int64(size = 0) │
-CaseNumber String: CaseNumber String String(size = 0) │
-│ (Expression) │
-│ ExpressionTransform × 4 │
-│ Header: eventId Int64: eventId Int64 Int64(size = 0) │
-│ CaseNumber String: CaseNumber String String(size = 0) │
-│ (SettingQuotaAndLimits) │
-│ (ReadFromMergeTree) │
-│ MergeTreeThread × 4 0 → 1 │
-│ Header: eventId Int64: eventId Int64 Int64(size = 0) │
-│ CaseNumber String: CaseNumber String String(size = 0) │
+│ (Expression)                                                        │
+│ ExpressionTransform                                                 │
+│ Header: 案例号 String: 案例号 String String(size = 0)                │
+│         eventId Int64: eventId Int64 Int64(size = 0)                │
+│   (Limit)                                                           │
+│   Limit                                                             │
+│   Header: 案例号 String: 案例号 String String(size = 0)              │
+│           eventId Int64: eventId Int64 Int64(size = 0)              │
+│     (Aggregating)                                                   │
+│     Resize 4 → 1   # 代表输入数据流是4个，合并后输出1个                │
+│     Header: 案例号 String: 案例号 String String(size = 0)            │
+│             eventId Int64: eventId Int64 Int64(size = 0)            │
+│       AggregatingTransform × 4                                      │
+│       Header: 案例号 String: 案例号 String String(size = 0)          │
+│               eventId Int64: eventId Int64 Int64(size = 0)          │
+│         StrictResize 4 → 4                                          │
+│         Header × 4 : eventId Int64: eventId Int64 Int64(size = 0)   │
+│                       案例号 String: 案例号 String String(size = 0)  │
+│           (Expression)                                              │
+│           ExpressionTransform × 4                                   │
+│           Header: eventId Int64: eventId Int64 Int64(size = 0)      │
+│                   案例号 String: 案例号 String String(size = 0)      │
+│             (SettingQuotaAndLimits)                                 │
+│               (ReadFromMergeTree)                                   │
+│               MergeTreeThread × 4 0 → 1                             │
+│               Header: eventId Int64: eventId Int64 Int64(size = 0)  │
+│                       案例号 String: 案例号 String String(size = 0)  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
+
 
 **SELECT with filter conditions, GROUP BY and LIMIT**
 
 ```SQL
-explain pipeline header=1 select `case number`, eventId, avg(`amount`) from cx1 where eventId % 10 > 3 group by `case number`, eventId limit 100
+explain pipeline header=1 select `案例号`, eventId, avg(`金额`) from cx1 where eventId % 10 > 3 group by `案例号`, eventId limit 100
 ┌─explain──────────────────────────────────────────────────────────────┐
-│ (Expression) │
-│ ExpressionTransform │
-│ Header: Case Number String: Case Number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ avg(Amount) Float64: avg(Amount) Float64 Float64(size = 0) │
-│ (Limit) │
-│ Limit │
-│ Header: Case number String: Case number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ avg(Amount) Float64: avg(Amount) Float64 Float64(size = 0) │
-│ (Aggregating) │
-│ Resize 4 → 1 │
-│ Header: Case number String: Case number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ avg(amount) Float64: avg(amount) Float64 Float64(size = 0) │
-│ AggregatingTransform × 4 │
-│ Header: Case number String: Case number String String(size = 0) │
-│ eventId Int64: eventId Int64 Int64(size = 0) │
-│ avg(amount) Float64: avg(amount) Float64 Float64(size = 0) │
-│ StrictResize 4 → 4 │
-│ Header × 4 : eventId Int64: eventId Int64 Int64(size = 0) │
-│ CaseNumber String: CaseNumber String String(size = 0) │
-│ Amount UInt8: Amount UInt8 UInt8(size = 0) │
-│ (Expression) │
-│ ExpressionTransform × 4 │
-│ Header: eventId Int64: eventId Int64 Int64(size = 0) │
-│ CaseNumber String: CaseNumber String String(size = 0) │
-│ Amount UInt8: Amount UInt8 UInt8(size = 0) │
-│ (SettingQuotaAndLimits) │
-│ (ReadFromMergeTree) │
-│ MergeTreeThread × 4 0 → 1 │
-│ Header: eventId Int64: eventId Int64 Int64(size = 0) │
-│ CaseNumber String: CaseNumber String String(size = 0) │
-│ Amount UInt8: Amount UInt8 UInt8(size = 0) │
-└──────────────────────────────────────────────────────────────────────────┘
+│ (Expression)                                                         │
+│ ExpressionTransform                                                  │
+│ Header: 案例号 String: 案例号 String String(size = 0)                 │
+│         eventId Int64: eventId Int64 Int64(size = 0)                 │
+│         avg(金额) Float64: avg(金额) Float64 Float64(size = 0)        │
+│   (Limit)                                                            │
+│   Limit                                                              │
+│   Header: 案例号 String: 案例号 String String(size = 0)               │
+│           eventId Int64: eventId Int64 Int64(size = 0)               │
+│           avg(金额) Float64: avg(金额) Float64 Float64(size = 0)      │
+│     (Aggregating)                                                    │
+│     Resize 4 → 1                                                     │
+│     Header: 案例号 String: 案例号 String String(size = 0)             │
+│             eventId Int64: eventId Int64 Int64(size = 0)             │
+│             avg(金额) Float64: avg(金额) Float64 Float64(size = 0)    │
+│       AggregatingTransform × 4                                       │
+│       Header: 案例号 String: 案例号 String String(size = 0)           │
+│               eventId Int64: eventId Int64 Int64(size = 0)           │
+│               avg(金额) Float64: avg(金额) Float64 Float64(size = 0)  │
+│         StrictResize 4 → 4                                           │
+│         Header × 4 : eventId Int64: eventId Int64 Int64(size = 0)    │
+│                       案例号 String: 案例号 String String(size = 0)   │
+│                       金额 UInt8: 金额 UInt8 UInt8(size = 0)          │
+│           (Expression)                                               │
+│           ExpressionTransform × 4                                    │
+│           Header: eventId Int64: eventId Int64 Int64(size = 0)       │
+│                   案例号 String: 案例号 String String(size = 0)       │
+│                   金额 UInt8: 金额 UInt8 UInt8(size = 0)              │
+│             (SettingQuotaAndLimits)                                  │
+│               (ReadFromMergeTree)                                    │
+│               MergeTreeThread × 4 0 → 1                              │
+│               Header: eventId Int64: eventId Int64 Int64(size = 0)   │
+│                       案例号 String: 案例号 String String(size = 0)   │
+│                       金额 UInt8: 金额 UInt8 UInt8(size = 0)          │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Dry Run when constructing the Query Pipeline
@@ -320,20 +321,20 @@ class QueryPipeline
 ...
 ...
 private:
-PipelineResourcesHolder resources;
-Processors processors; // All the processors to be executed
-
-InputPort * input = nullptr; // input port
-
-OutputPort * output = nullptr; // output port
-OutputPort * totals = nullptr;
-OutputPort * extremes = nullptr;
-
-QueryStatus * process_list_element = nullptr; // strange name, indicates the query status
-
-IOutputFormat * output_format = nullptr; // final output
-
-size_t num_threads = 0; // number of threads
+    PipelineResourcesHolder resources;
+    Processors processors; // All the processors to be executed
+    
+    InputPort * input = nullptr; // input port
+    
+    OutputPort * output = nullptr; // output port
+    OutputPort * totals = nullptr;
+    OutputPort * extremes = nullptr;
+    
+    QueryStatus * process_list_element = nullptr; // strange name, indicates the query status
+    
+    IOutputFormat * output_format = nullptr; // final output
+    
+    size_t num_threads = 0; // number of threads
 }
 ```
 
@@ -353,17 +354,17 @@ void QueryPipeline:: complete(std::shared_ptr<IOutputFormat> format)
 
 ```Cpp
 /**
-* Chunk is a list of columns with the same length.
-* Chunk stores the number of rows in a separate field and supports invariant of equal column length.
-*
-* Chunk has move-only semantic. It's more lightweight than block cause doesn't store names, types and index_by_name.
-*
-* Chunk can have empty set of columns but non-zero number of rows. It helps when only the number of rows is needed.
-* Chunk can have columns with zero number of rows. It may happen, for example, if all rows were filtered.
-* Chunk is empty only if it has zero rows and empty list of columns.
-*
-* Any ChunkInfo may be attached to chunk.
-* It may be useful if additional info per chunk is needed. For example, bucket number for aggregated data.
+ * Chunk is a list of columns with the same length.
+ * Chunk stores the number of rows in a separate field and supports invariant of equal column length.
+ *
+ * Chunk has move-only semantic. It's more lightweight than block cause doesn't store names, types and index_by_name.
+ *
+ * Chunk can have empty set of columns but non-zero number of rows. It helps when only the number of rows is needed.
+ * Chunk can have columns with zero number of rows. It may happen, for example, if all rows were filtered.
+ * Chunk is empty only if it has zero rows and empty list of columns.
+ *
+ * Any ChunkInfo may be attached to chunk.
+ * It may be useful if additional info per chunk is needed. For example, bucket number for aggregated data.
 **/
 ```
 
@@ -371,11 +372,11 @@ void QueryPipeline:: complete(std::shared_ptr<IOutputFormat> format)
 
 ```Cpp
 /** Container for set of columns for bunch of rows in memory.
-* This is unit of data processing.
-* Also contains metadata - data types of columns and their names
-* (either original names from a table, or generated names during temporary calculations).
-* Allows to insert, remove columns in arbitrary position, to change order of columns.
-*/
+  * This is unit of data processing.
+  * Also contains metadata - data types of columns and their names
+  *  (either original names from a table, or generated names during temporary calculations).
+  * Allows to insert, remove columns in arbitrary position, to change order of columns.
+  */
 ```
 
 
@@ -385,258 +386,259 @@ void QueryPipeline:: complete(std::shared_ptr<IOutputFormat> format)
 The actual query pipeline execution components are the large and rich processors, which are the basic building blocks for the underlying execution.
 
 ```Ruby
-^IProcessor$
-└── IProcessor
-├── AggregatingInOrderTransform
-├── AggregatingTransform
-├── ConcatProcessor
-├── ConvertingAggregatedToChunksTransform
-├── CopyTransform
-├── CopyingDataToViewsTransform
-├── DelayedPortsProcessor
-├── DelayedSource
-├── FillingRightJoinSideTransform
-├── FinalizingViewsTransform
-├── ForkProcessor
-├── GroupingAggregatedTransform
-├── IInflatingTransform
-├── IntersectOrExceptTransform
-├── JoiningTransform
-├── LimitTransform
-├── OffsetTransform
-├── ResizeProcessor
-├── SortingAggregatedTransform
-├── StrictResizeProcessor
-├── WindowTransform
-├── IAccumulatingTransform
-│ ├── BufferingToFileTransform
-│ ├── CreatingSetsTransform
-│ ├── CubeTransform
-│ ├── MergingAggregatedTransform
-│ ├── QueueBuffer
-│ ├── RollupTransform
-│ ├── TTLCalcTransform
-│ └── TTLTransform
-├── ISimpleTransform
-│ ├── AddingDefaultsTransform
-│ ├── AddingSelectorTransform
-│ ├── ArrayJoinTransform
-│ ├── CheckSortedTransform
-│ ├── DistinctSortedTransform
-│ ├── DistinctTransform
-│ ├── ExpressionTransform
-│ ├── ExtremesTransform
-│ ├── FillingTransform
-│ ├── FilterTransform
-│ ├── FinalizeAggregatedTransform
-│ ├── LimitByTransform
-│ ├── LimitsCheckingTransform
-│ ├── MaterializingTransform
-│ ├── MergingAggregatedBucketTransform
-│ ├── PartialSortingTransform
-│ ├── ReplacingWindowColumnTransform
-│ ├── ReverseTransform
-│ ├── SendingChunkHeaderTransform
-│ ├── TotalsHavingTransform
-│ ├── TransformWithAdditionalColumns
-│ └── WatermarkTransform
-├── ISink
-│ ├── EmptySink
-│ ├── ExternalTableDataSink
-│ ├── NullSink
-│ └── ODBCSink
-├── SortingTransform
-├── FinishSortingTransform
-│ └── MergeSortingTransform
-├── IMergingTransformBase
-│ └── IMergingTransform
-│ ├── AggregatingSortedTransform
-│ ├── CollapsingSortedTransform
-│ ├── ColumnGathererTransform
-├── FinishAggregatingInOrderTransform
-├── GraphiteRollupSortedTransform
-├── MergingSortedTransform
-├── ReplacingSortedTransform
-├── SummingSortedTransform
-├── VersionedCollapsingTransform
-├── ExceptionKeepingTransform
-│ ├── CheckConstraintsTransform
-│ ├── ConvertingTransform
-│ ├── CountingTransform
-│ ├── ExecutingInnerQueryFromViewTransform
-│ ├── SquashingChunksTransform
-│ └── SinkToStorage
-│ ├── BufferSink
-│ ├── DistributedSink
-│ ├── EmbeddedRocksDBSink
-│ ├── HDFSSink
-│ ├── KafkaSink
-│ ├── LiveViewSink
-│ ├── LogSink
-│ ├── MemorySink
-│ ├── MergeTreeSink
-│ ├── NullSinkToStorage
-│ ├── PostgreSQLSink
-│ ├── PushingToLiveViewSink
-│ ├── PushingToWindowViewSink
-│ ├── RabbitMQSink
-│ ├── RemoteSink
-│ ├── ReplicatedMergeTreeSink
-│ ├── SQLiteSink
-│ ├── SetOrJoinSink
-│ ├── StorageFileSink
-│ ├── StorageMySQLSink
-│ ├── StorageS3Sink
-│ ├── StorageURLSink
-│ ├── StripeLogSink
-│ └── PartitionedSink
-│ ├── PartitionedHDFSSink
-│ ├── PartitionedStorageFileSink
-│ ├── PartitionedStorageS3Sink
-│ └── PartitionedStorageURLSink
-├── IOutputFormat
-│ ├── ArrowBlockOutputFormat
-│ ├── LazyOutputFormat
-│ ├── MySQLOutputFormat
-│ ├── NativeOutputFormat
-│ ├── NullOutputFormat
-│ ├── ODBCDriver2BlockOutputFormat
-│ ├── ORCBlockOutputFormat
-│ ├── ParallelFormattingOutputFormat
-│ ├── ParquetBlockOutputFormat
-│ ├── PostgreSQLOutputFormat
-│ ├── PullingOutputFormat
-│ ├── TemplateBlockOutputFormat
-│ ├── PrettyBlockOutputFormat
-│ │ ├── PrettyCompactBlockOutputFormat
-│ │ └── PrettySpaceBlockOutputFormat
-│ └── IRowOutputFormat
-│ ├── AvroRowOutputFormat
-│ ├── BinaryRowOutputFormat
-│ ├── CSVRowOutputFormat
-│ ├── CapnProtoRowOutputFormat
-│ ├── CustomSeparatedRowOutputFormat
-│ ├── JSONCompactEachRowRowOutputFormat
-│ ├── MarkdownRowOutputFormat
-│ ├── MsgPackRowOutputFormat
-│ ├── ProtobufRowOutputFormat
-│ ├── RawBLOBRowOutputFormat ├── ValuesRowOutputFormat
-│ ├── VerticalRowOutputFormat
-│ ├── XMLRowOutputFormat
-│ ├── JSONEachRowRowOutputFormat
-│ │ └── JSONEachRowWithProgressRowOutputFormat
-│ ├── JSONRowOutputFormat
-│ │ └── JSONCompactRowOutputFormat
-│ └── TabSeparatedRowOutputFormat
-│ └── TSKVRowOutputFormat
-└── ISource
-├── ConvertingAggregatedToChunksSource
-├── MergeSorterSource
-├── NullSource
-├── ODBCSource
-├── PushingAsyncSource
-├── PushingSource
-├── RemoteExtremesSource
-├── RemoteTotalsSource
-├── SourceFromNativeStream
-├── TemporaryFileLazySource
-├── WaitForAsyncInsertSource
-├── IInputFormat
-│ ├── ArrowBlockInputFormat
-│ ├── NativeInputFormat
-├── ORCBlockInputFormat
-├── ParallelParsingInputFormat
-├── ParquetBlockInputFormat
-├── ValuesBlockInputFormat
-└── IRowInputFormat
-├── AvroConfluentRowInputFormat
-├── AvroRowInputFormat
-├── CapnProtoRowInputFormat ├── CapnProtoRowInputFormat
-│ ├── JSONAsStringRowInputFormat
-│ ├── JSONEachRowRowInputFormat
-│ ├── LineAsStringRowInputFormat
-│ ├── MsgPackRowInputFormat
-│ ├── ProtobufRowInputFormat
-│ ├── RawBLOBRowInputFormat
-│ ├── RegexpRowInputFormat
-│ ├── TSKVRowInputFormat
-│ └── RowInputFormatWithDiagnosticInfo
-│ ├── TemplateRowInputFormat
-│ └── RowInputFormatWithNamesAndTypes
-│ ├── BinaryRowInputFormat
-│ ├── CSVRowInputFormat
-│ ├── CustomSeparatedRowInputFormat
-│ ├── JSONCompactEachRowRowInputFormat
-│ └── TabSeparatedRowInputFormat
-└── ISourceWithProgress
-└── SourceWithProgress
-├── BlocksListSource
-├── BlocksSource
-├── BufferSource
-├── CassandraSource
-├── ColumnsSource
-├── DDLQueryStatusSource
-├── DataSkippingIndicesSource
-├── DictionarySource
-├── DirectoryMonitorSource
-├── EmbeddedRocksDBSource
-├── FileLogSource
-├── GenerateSource
-├── HDFSSource
-├── JoinSource
-├── KafkaSource
-├── LiveViewEventsSource
-├── LiveViewSource
-├── LogSource
-├── MemorySource
-├── MergeTreeSequentialSource
-├── MongoDBSource
-├── NumbersMultiThreadedSource
-├── NumbersSource
-├── RabbitMQSource
-├── RedisSource
-├── RemoteSource
-├── SQLiteSource
-├── ShellCommandSource
-├── SourceFromSingleChunk
-├── StorageFileSource
-├── StorageInputSource
-├── StorageS3Source
-├── StorageURLSource
-├── StripeLogSource
-├── SyncKillQuerySource
-├── TablesBlockSource
-├── WindowViewSource
-├── ZerosSource
-├── MySQLSource
-│ └── MySQLWithFailoverSource
-├── PostgreSQLSource
-│ └── PostgreSQLTransactionSource
-└── MergeTreeBaseSelectProcessor
-├── MergeTreeThreadSelectProcessor
-└── MergeTreeSelectProcessor
-├── MergeTreeInOrderSelectProcessor
-└── MergeTreeReverseSelectProcessor
+  ^IProcessor$
+  └── IProcessor
+      ├── AggregatingInOrderTransform
+      ├── AggregatingTransform
+      ├── ConcatProcessor
+      ├── ConvertingAggregatedToChunksTransform
+      ├── CopyTransform
+      ├── CopyingDataToViewsTransform
+      ├── DelayedPortsProcessor
+      ├── DelayedSource
+      ├── FillingRightJoinSideTransform
+      ├── FinalizingViewsTransform
+      ├── ForkProcessor
+      ├── GroupingAggregatedTransform
+      ├── IInflatingTransform
+      ├── IntersectOrExceptTransform
+      ├── JoiningTransform
+      ├── LimitTransform
+      ├── OffsetTransform
+      ├── ResizeProcessor
+      ├── SortingAggregatedTransform
+      ├── StrictResizeProcessor
+      ├── WindowTransform
+      ├── IAccumulatingTransform
+      │   ├── BufferingToFileTransform
+      │   ├── CreatingSetsTransform
+      │   ├── CubeTransform
+      │   ├── MergingAggregatedTransform
+      │   ├── QueueBuffer
+      │   ├── RollupTransform
+      │   ├── TTLCalcTransform
+      │   └── TTLTransform
+      ├── ISimpleTransform
+      │   ├── AddingDefaultsTransform
+      │   ├── AddingSelectorTransform
+      │   ├── ArrayJoinTransform
+      │   ├── CheckSortedTransform
+      │   ├── DistinctSortedTransform
+      │   ├── DistinctTransform
+      │   ├── ExpressionTransform
+      │   ├── ExtremesTransform
+      │   ├── FillingTransform
+      │   ├── FilterTransform
+      │   ├── FinalizeAggregatedTransform
+      │   ├── LimitByTransform
+      │   ├── LimitsCheckingTransform
+      │   ├── MaterializingTransform
+      │   ├── MergingAggregatedBucketTransform
+      │   ├── PartialSortingTransform
+      │   ├── ReplacingWindowColumnTransform
+      │   ├── ReverseTransform
+      │   ├── SendingChunkHeaderTransform
+      │   ├── TotalsHavingTransform
+      │   ├── TransformWithAdditionalColumns
+      │   └── WatermarkTransform
+      ├── ISink
+      │   ├── EmptySink
+      │   ├── ExternalTableDataSink
+      │   ├── NullSink
+      │   └── ODBCSink
+      ├── SortingTransform
+      │   ├── FinishSortingTransform
+      │   └── MergeSortingTransform
+      ├── IMergingTransformBase
+      │   └── IMergingTransform
+      │       ├── AggregatingSortedTransform
+      │       ├── CollapsingSortedTransform
+      │       ├── ColumnGathererTransform
+      │       ├── FinishAggregatingInOrderTransform
+      │       ├── GraphiteRollupSortedTransform
+      │       ├── MergingSortedTransform
+      │       ├── ReplacingSortedTransform
+      │       ├── SummingSortedTransform
+      │       └── VersionedCollapsingTransform
+      ├── ExceptionKeepingTransform
+      │   ├── CheckConstraintsTransform
+      │   ├── ConvertingTransform
+      │   ├── CountingTransform
+      │   ├── ExecutingInnerQueryFromViewTransform
+      │   ├── SquashingChunksTransform
+      │   └── SinkToStorage
+      │       ├── BufferSink
+      │       ├── DistributedSink
+      │       ├── EmbeddedRocksDBSink
+      │       ├── HDFSSink
+      │       ├── KafkaSink
+      │       ├── LiveViewSink
+      │       ├── LogSink
+      │       ├── MemorySink
+      │       ├── MergeTreeSink
+      │       ├── NullSinkToStorage
+      │       ├── PostgreSQLSink
+      │       ├── PushingToLiveViewSink
+      │       ├── PushingToWindowViewSink
+      │       ├── RabbitMQSink
+      │       ├── RemoteSink
+      │       ├── ReplicatedMergeTreeSink
+      │       ├── SQLiteSink
+      │       ├── SetOrJoinSink
+      │       ├── StorageFileSink
+      │       ├── StorageMySQLSink
+      │       ├── StorageS3Sink
+      │       ├── StorageURLSink
+      │       ├── StripeLogSink
+      │       └── PartitionedSink
+      │           ├── PartitionedHDFSSink
+      │           ├── PartitionedStorageFileSink
+      │           ├── PartitionedStorageS3Sink
+      │           └── PartitionedStorageURLSink
+      ├── IOutputFormat
+      │   ├── ArrowBlockOutputFormat
+      │   ├── LazyOutputFormat
+      │   ├── MySQLOutputFormat
+      │   ├── NativeOutputFormat
+      │   ├── NullOutputFormat
+      │   ├── ODBCDriver2BlockOutputFormat
+      │   ├── ORCBlockOutputFormat
+      │   ├── ParallelFormattingOutputFormat
+      │   ├── ParquetBlockOutputFormat
+      │   ├── PostgreSQLOutputFormat
+      │   ├── PullingOutputFormat
+      │   ├── TemplateBlockOutputFormat
+      │   ├── PrettyBlockOutputFormat
+      │   │   ├── PrettyCompactBlockOutputFormat
+      │   │   └── PrettySpaceBlockOutputFormat
+      │   └── IRowOutputFormat
+      │       ├── AvroRowOutputFormat
+      │       ├── BinaryRowOutputFormat
+      │       ├── CSVRowOutputFormat
+      │       ├── CapnProtoRowOutputFormat
+      │       ├── CustomSeparatedRowOutputFormat
+      │       ├── JSONCompactEachRowRowOutputFormat
+      │       ├── MarkdownRowOutputFormat
+      │       ├── MsgPackRowOutputFormat
+      │       ├── ProtobufRowOutputFormat
+      │       ├── RawBLOBRowOutputFormat
+      │       ├── ValuesRowOutputFormat
+      │       ├── VerticalRowOutputFormat
+      │       ├── XMLRowOutputFormat
+      │       ├── JSONEachRowRowOutputFormat
+      │       │   └── JSONEachRowWithProgressRowOutputFormat
+      │       ├── JSONRowOutputFormat
+      │       │   └── JSONCompactRowOutputFormat
+      │       └── TabSeparatedRowOutputFormat
+      │           └── TSKVRowOutputFormat
+      └── ISource
+          ├── ConvertingAggregatedToChunksSource
+          ├── MergeSorterSource
+          ├── NullSource
+          ├── ODBCSource
+          ├── PushingAsyncSource
+          ├── PushingSource
+          ├── RemoteExtremesSource
+          ├── RemoteTotalsSource
+          ├── SourceFromNativeStream
+          ├── TemporaryFileLazySource
+          ├── WaitForAsyncInsertSource
+          ├── IInputFormat
+          │   ├── ArrowBlockInputFormat
+          │   ├── NativeInputFormat
+          │   ├── ORCBlockInputFormat
+          │   ├── ParallelParsingInputFormat
+          │   ├── ParquetBlockInputFormat
+          │   ├── ValuesBlockInputFormat
+          │   └── IRowInputFormat
+          │       ├── AvroConfluentRowInputFormat
+          │       ├── AvroRowInputFormat
+          │       ├── CapnProtoRowInputFormat
+          │       ├── JSONAsStringRowInputFormat
+          │       ├── JSONEachRowRowInputFormat
+          │       ├── LineAsStringRowInputFormat
+          │       ├── MsgPackRowInputFormat
+          │       ├── ProtobufRowInputFormat
+          │       ├── RawBLOBRowInputFormat
+          │       ├── RegexpRowInputFormat
+          │       ├── TSKVRowInputFormat
+          │       └── RowInputFormatWithDiagnosticInfo
+          │           ├── TemplateRowInputFormat
+          │           └── RowInputFormatWithNamesAndTypes
+          │               ├── BinaryRowInputFormat
+          │               ├── CSVRowInputFormat
+          │               ├── CustomSeparatedRowInputFormat
+          │               ├── JSONCompactEachRowRowInputFormat
+          │               └── TabSeparatedRowInputFormat
+          └── ISourceWithProgress
+              └── SourceWithProgress
+                  ├── BlocksListSource
+                  ├── BlocksSource
+                  ├── BufferSource
+                  ├── CassandraSource
+                  ├── ColumnsSource
+                  ├── DDLQueryStatusSource
+                  ├── DataSkippingIndicesSource
+                  ├── DictionarySource
+                  ├── DirectoryMonitorSource
+                  ├── EmbeddedRocksDBSource
+                  ├── FileLogSource
+                  ├── GenerateSource
+                  ├── HDFSSource
+                  ├── JoinSource
+                  ├── KafkaSource
+                  ├── LiveViewEventsSource
+                  ├── LiveViewSource
+                  ├── LogSource
+                  ├── MemorySource
+                  ├── MergeTreeSequentialSource
+                  ├── MongoDBSource
+                  ├── NumbersMultiThreadedSource
+                  ├── NumbersSource
+                  ├── RabbitMQSource
+                  ├── RedisSource
+                  ├── RemoteSource
+                  ├── SQLiteSource
+                  ├── ShellCommandSource
+                  ├── SourceFromSingleChunk
+                  ├── StorageFileSource
+                  ├── StorageInputSource
+                  ├── StorageS3Source
+                  ├── StorageURLSource
+                  ├── StripeLogSource
+                  ├── SyncKillQuerySource
+                  ├── TablesBlockSource
+                  ├── WindowViewSource
+                  ├── ZerosSource
+                  ├── MySQLSource
+                  │   └── MySQLWithFailoverSource
+                  ├── PostgreSQLSource
+                  │   └── PostgreSQLTransactionSource
+                  └── MergeTreeBaseSelectProcessor
+                      ├── MergeTreeThreadSelectProcessor
+                      └── MergeTreeSelectProcessor
+                          ├── MergeTreeInOrderSelectProcessor
+                          └── MergeTreeReverseSelectProcessor
 ```
 
 The most important ones are these classes:
 
 ```Ruby
-^IProcessor$
-└── IProcessor
-├── IAccumulatingTransform
-├── IMergingTransformBase
-├── IOutputFormat
-├── ISimpleTransform
-├── ISink
-├── ISource
-├── JoiningTransform
-├── LimitTransform
-├── OffsetTransform
-├── ResizeProcessor
-├── SortingAggregatedTransform
-├── SortingTransform
-└── WindowTransform
+  ^IProcessor$
+  └── IProcessor
+      ├── IAccumulatingTransform
+      ├── IMergingTransformBase
+      ├── IOutputFormat
+      ├── ISimpleTransform
+      ├── ISink
+      ├── ISource
+      ├── JoiningTransform
+      ├── LimitTransform
+      ├── OffsetTransform
+      ├── ResizeProcessor
+      ├── SortingAggregatedTransform
+      ├── SortingTransform
+      └── WindowTransform
 ```
 
 
