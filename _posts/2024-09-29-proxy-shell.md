@@ -14,5 +14,5 @@ function proxy() {
 
 如果使用代理服务器访问外网，用`proxy`开头后面跟命令，例如：
 ```
-proxy git submodule update --init --recursive
+proxy git submodule update --init --recursive --force
 ```
