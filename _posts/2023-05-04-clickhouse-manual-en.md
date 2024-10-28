@@ -808,7 +808,7 @@ settings allow_introspection_functions = 1;
 
 #### Flame graph analysis
 
-<omitted>
+Detailed introduction about flame graph is in another article.
 
 
 
