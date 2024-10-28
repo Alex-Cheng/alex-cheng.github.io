@@ -805,9 +805,7 @@ settings allow_introspection_functions = 1;
 
 #### 火焰图分析
 
-<略>
-
-
+在另外一篇中详细介绍。
 
 ### IO分析
 
