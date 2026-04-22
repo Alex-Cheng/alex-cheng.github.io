@@ -1,6 +1,6 @@
 # Harness Engineering 介绍与最佳实践
 
-![封面](images/ai-harness-engineering-cover.png)
+![封面](/images/ai-harness-engineering-cover.png)
 
 ## 什么是 Harness Engineering
 

@@ -4,6 +4,28 @@
 
 @import "{{ site.theme }}";
 
+// Override minima theme default width - make content wider
+.wrapper {
+  max-width: 1200px !important;  // Default is ~800px, increased to 1200px
+}
+
+.page-content {
+  padding: 30px 0 !important;
+}
+
+// For posts, make the content area wider
+.post {
+  max-width: 900px !important;  // Default is ~600px, increased to 900px
+}
+
+// Adjust header and footer to match
+.site-header,
+.site-footer {
+  .wrapper {
+    max-width: 1200px !important;
+  }
+}
+
 .post img {
         display: block;
         border:1px solid #021a40;
