@@ -65,7 +65,7 @@ class AcRxClass {
     const ACHAR* name() const;      // 类名
     AcRxClass* myParent() const;     // 父类
     AcRxObject* create() const;      // 创建实例
-    void addX(AcRxClass* protocol, AcRxObject* impl); // 添加协议
+    AcRxObject* addX(AcRxClass* protocol, AcRxObject* impl); // 添加协议，返回旧扩展
 };
 ```
 
