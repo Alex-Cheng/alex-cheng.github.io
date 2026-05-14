@@ -1,7 +1,6 @@
 # ObjectARX Protocol Extension (PE) 深度解析：运行时类扩展的艺术
 
 ## 目录
-
 1. [PE 是什么](#pe-是什么)
 2. [PE 的设计原理](#pe-的设计原理)
 3. [PE 的使用方法](#pe-的使用方法)
@@ -14,7 +13,7 @@
 
 **PE** = **P**rotocol **E**xtension（协议扩展）
 
-在 ObjectARX 中，PE 是一种**非侵入式的运行时类扩展机制**，允许开发者在**不修改原有类代码**、**不继承原有类**的情况下，为现有类动态添加功能。
+在 ObjectARX 中，PE 是一种**运行时类扩展机制**，允许开发者在**不修改原有类代码**、**不继承原有类**的情况下，为现有类动态添加功能。
 
 ### 为什么需要 PE？
 
@@ -30,19 +29,15 @@
 
 ### 核心概念
 
-```text
+```
 ┌─────────────────────────────────────────────────────┐
-│                  PE 核心架构                         │
+│                  PE 核心架构                           │
 ├─────────────────────────────────────────────────────┤
-│  协议接口类 (如 ICustomData) — 定义功能契约 (纯虚)     │
-│      ↑ 继承                                         │
-│  协议实现类 (如 CircleDataImpl) — 实现接口，可有状态   │
-│      ↓ 实例化为                                     │
-│  PE 对象 (单例) ←──────── addX() 附加到RxClass       │
-│                          ↑                         │
-│  AcRxClass ←──────── queryX() 返回 PE 对象           │
-│                          ↑                         │
-│                        调用者                        │
+│  协议接口类 (如 IMyCustomDraw)                         │
+│      ↓ 继承                                           │
+│  协议实现类 (如 MyCustomDrawImpl)                      │
+│      ↓ 通过 addX 附加                                  │
+│  目标类的 AcRxClass (如 AcDbLine::desc())              │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -50,80 +45,56 @@
 
 ## PE 的设计原理
 
-### 运行时类型系统 (AcRxClass)
+### 1. 基于 AcRxClass 的元对象系统
 
-ObjectARX 的核心是 **AcRxClass** —— 运行时类描述符。每个 `AcRxObject` 派生类都有一个对应的 `AcRxClass` 实例，通过 `desc()` 静态方法获取。
-
-PE 利用 `AcRxClass` 作为"挂载点"，将协议对象附加到类元数据上：
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│                    AcRxClass 内部结构                     │
-├─────────────────────────────────────────────────────────┤
-│  类名: "AcDbLine"                                        │
-│  父类: AcDbEntity::desc()                                │
-│  协议扩展表:                                              │
-│    ┌─────────────────┬──────────────────┐               │
-│    │ 协议类          │ 协议对象实例        │               │
-│    ├─────────────────┼──────────────────┤               │
-│    │ ICustomData     │ pCircleDataImpl   │               │
-│    │ IExportProtocol │ pExportImpl       │               │
-│    │ ...             │ ...               │               │
-│    └─────────────────┴──────────────────┘               │
-└─────────────────────────────────────────────────────────┘
+```cpp
+// rxclass.h - AcRxClass 核心方法
+class AcRxClass: public AcRxObject
+{
+public:
+    ACBASE_PORT AcRxObject* addX(AcRxClass* protocolClass, AcRxObject* pExt);
+    ACBASE_PORT AcRxObject* queryX(const AcRxClass* protocolClass) const;
+    ACBASE_PORT AcRxObject* delX(AcRxClass* protocolClass);
+    // ...
+};
 ```
 
-### 查找机制
+**关键设计决策**：功能扩展绑定到类的元对象（`AcRxClass`），而非实例对象。这意味着：
+- 所有 `AcDbLine` 实例共享同一个 PE
+- 扩展在类级别生效
 
-当调用 `queryX()` 时，内部执行流程：
+### 2. Protocol Extension vs Protocol Reactor vs Overrule
 
-```text
-pEnt->queryX(IMyProtocol::desc())
-    │
-    ▼
-pEnt->isA()                    // 获取对象的 AcRxClass*
-    │
-    ▼
-AcRxClass::queryX()            // 在协议扩展表中查找
-    │
-    ▼
-返回匹配的协议对象或 nullptr
+ObjectARX 提供了三种基于 PE 的扩展模式：
+
+| 模式 | 注册方式 | 特点 | 适用场景 |
+|------|----------|------|----------|
+| **基础 PE** | `addX()` | 一对一，单扩展对象 | 为类附加单一功能 |
+| **Protocol Reactor** | `ACRX_PROTOCOL_REACTOR_LIST_AT()->addReactor()` | 一对多，多监听者 | 事件通知、多模块监听 |
+| **Overrule** | `AcRxOverrule::addOverrule()` | 覆盖/重载原有行为 | 修改 AutoCAD 内置行为 |
+
+### 3. 类层次与伪构造函数
+
+PE 机制依赖于 ObjectARX 的**运行时类型识别系统**：
+
+```cpp
+// rxboiler.h - 宏定义展开
+#define ACRX_DECLARE_MEMBERS(CLASS_NAME) \
+    static AcRxClass* desc();      /* 获取类描述符 */ \
+    static CLASS_NAME* cast(const AcRxObject* inPtr); \
+    static void rxInit();           /* 注册类 */ \
+    // ...
 ```
 
-### 核心 API 详解
-
-**头文件**：`rxclass.h`
-
-| 方法 | 参数 | 返回值 | 说明 |
-|------|------|--------|------|
-| `addX(protocolClass, protocolObject)` | 协议接口类描述符<br>协议对象实例 | 之前关联的同类型对象 | 添加协议扩展到目标类 |
-| `delX(protocolClass)` | 协议接口类描述符 | 被移除的协议对象 | 从目标类移除协议扩展 |
-| `queryX(protocolClass)` | 协议接口类描述符 | 协议对象或 `nullptr` | 查询目标类是否支持某协议 |
-
-**注意**：`getX()` 已废弃，请使用 `queryX()`。
-
-### 与 C++ 虚函数的区别
-
-| 特性 | 虚函数 | PE |
-|------|--------|-----|
-| **绑定时机** | 编译时 | 运行时 |
-| **修改原类** | 需要 | 不需要 |
-| **第三方扩展** | 不可能 | 可以 |
-| **性能** | 直接调用，更快 | 查表调用，稍慢 |
-| **灵活性** | 固定 | 可动态添加/移除 |
-
-### 与继承的对比
-
-| 方式 | 优点 | 缺点 |
-|------|------|------|
-| **继承** | 编译时确定，类型安全 | 需要修改代码，无法为已有类添加功能 |
-| **PE** | 运行时动态添加，不修改原类 | 需要手动管理生命周期 |
+每个 PE 类都需要通过 `rxInit()` 注册到系统，才能参与 PE 机制。
 
 ---
 
-## PE 的使用方法（基于示例说明）
+## PE 的使用方法
 
-### 步骤 1：定义 PE 接口类
+### 完整示例：为 AcDbCircle 添加自定义数据协议
+
+#### 步骤 1：定义 PE 接口类
 
 ```cpp
 // ICustomData.h
@@ -148,7 +119,7 @@ public:
 ACRX_NO_CONS_DEFINE_MEMBERS(ICustomData, AcRxObject)
 ```
 
-### 步骤 2：实现 PE 类
+#### 步骤 2：实现 PE 类
 
 ```cpp
 // CircleDataImpl.h
@@ -186,7 +157,7 @@ void CircleDataImpl::serialize(void* buffer, size_t size) const
 }
 ```
 
-### 步骤 3：注册 PE
+#### 步骤 3：注册 PE
 
 ```cpp
 // acrxEntryPoint.cpp
@@ -231,7 +202,7 @@ void unloadApp()
 }
 ```
 
-### 步骤 4：查询和使用 PE
+#### 步骤 4：查询和使用 PE
 
 ```cpp
 void testPECommand()
@@ -324,6 +295,15 @@ void queryAllEntities()
 | **类型安全** | `queryX` 返回 `AcRxObject*`，需手动 cast | 使用 `ACRX_PE_PTR` 宏 |
 | **无实例隔离** | 无法为单个对象实例附加不同 PE | 在 PE 实现中通过参数区分 |
 | **学习曲线** | 涉及多个类：AcRxClass、rxInit、宏等 | 遵循标准模板 |
+
+### 与其他语言的对比
+
+| 语言/平台 | 类似机制 | 对比 |
+|----------|---------|------|
+| C++ | 多重继承 + 虚继承 | PE 更灵活，无菱形继承问题 |
+| Java | Interface + 动态代理 | PE 绑定到类而非实例 |
+| C# | Extension Methods | PE 是真正的对象，可有状态 |
+| Python | Monkey Patching | PE 类型安全，更可控 |
 
 ---
 
@@ -442,6 +422,30 @@ AcRxObject* pObj = pClass->queryX(protocolClass);
 // 危险！
 IMyProtocol* p = ACRX_PE_PTR(pEnt, IMyProtocol);
 p->doSomething();  // 如果 p 为 nullptr，崩溃！
+```
+
+#### 陷阱 5：替换 PE 时忽略 addX() 的返回值
+
+`addX()` 返回被替换的**旧扩展对象**（首次注册返回 `nullptr`）。直接丢弃返回值会导致旧对象泄漏。
+
+```cpp
+// ❌ 错误：循环中重复 addX，旧对象泄漏
+while (someCondition) {
+    MyProtocol* p = new MyProtocol();
+    SomeClass::desc()->addX(MyProtocol::desc(), p);
+    // 第2次起，addX 返回的旧指针被丢弃 → 泄漏
+}
+
+// ⚠️ 更危险：在 addX 后直接 delete
+SomeClass::desc()->addX(MyProtocol::desc(), new MyProtocol());
+delete p;  // ❌ 系统内部仍持有这个指针 → use-after-free！
+
+// ✅ 正确：接收 addX 的返回值，安全释放旧对象
+while (someCondition) {
+    MyProtocol* pOld = static_cast<MyProtocol*>(
+        SomeClass::desc()->addX(MyProtocol::desc(), new MyProtocol()));
+    if (pOld) delete pOld;  // 首次注册 pOld 为 nullptr，无需释放
+}
 ```
 
 ---
